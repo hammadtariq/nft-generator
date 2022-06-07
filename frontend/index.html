@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CryptoZombies front-end</title>
+    <script
+      language="javascript"
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+    ></script>
+    <script
+      src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+      type="application/javascript"
+    ></script>
+
+    <!-- <script
+      language="javascript"
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.2/web3.min.js"
+    ></script> -->
+    <!-- <script
+      language="javascript"
+      type="text/javascript"
+      src="./src/contracts/ZombieFactory.json"
+    ></script>
+    <script
+      language="javascript"
+      type="text/javascript"
+      src="./src/contracts/contract-address.json"
+    ></script> -->
+  </head>
+
+  <body>
+    <div id="txStatus"></div>
+    <div id="zombies"></div>
+    <script>
+      var cryptoZombies;
+      var userAccount;
+      // deployed by user: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      function startApp() {
+        // var accountInterval = setInterval(function () {
+        //   if (web3js.eth.accounts[0] !== userAccount) {
+        //     userAccount = web3js.eth.accounts[0];
+
+        // getZombiesByOwner(userAccount).then(displayZombies);
+        createRandomZombie("hammad").then(displayZombies);
+        // }
+        // }, 100);
+
+        // cryptoZombies.events
+        //   .Transfer({ filter: { _to: userAccount } })
+        //   .on("data", function (event) {
+        //     let data = event.returnValues;
+        //     getZombiesByOwner(userAccount).then(displayZombies);
+        //   })
+        //   .on("error", console.error);
+      }
+
+      function displayZombies(ids) {
+        $("#zombies").empty();
+        for (id of ids) {
+          getZombieDetails(id).then(function (zombie) {
+            $("#zombies").append(`<div class="zombie">
+              <ul>
+                <li>Name: ${zombie.name}</li>
+                <li>DNA: ${zombie.dna}</li>
+                <li>Level: ${zombie.level}</li>
+                <li>Wins: ${zombie.winCount}</li>
+                <li>Losses: ${zombie.lossCount}</li>
+                <li>Ready Time: ${zombie.readyTime}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      async function createRandomZombie(name) {
+        try {
+          $("#txStatus").text(
+            "Creating new zombie on the blockchain. This may take a while..."
+          );
+          const tx = await cryptoZombies.createRandomZombie(name);
+          // wait for the transaction to be mined
+          const receipt = await tx.wait();
+          $("#txStatus").text("Successfully created " + name + "!");
+
+          getZombiesByOwner(userAccount).then(displayZombies);
+          return tx;
+        } catch (error) {
+          $("#txStatus").text(error);
+        }
+      }
+
+      async function feedOnKitty(zombieId, kittyId) {
+        try {
+          $("#txStatus").text("Eating a kitty. This may take a while...");
+          const tx = await cryptoZombies.feedOnKitty(zombieId, kittyId);
+          // wait for the transaction to be mined
+          const receipt = await tx.wait();
+          $("#txStatus").text("Ate a kitty and spawned a new Zombie!");
+          getZombiesByOwner(userAccount).then(displayZombies);
+          return tx;
+        } catch (error) {
+          $("#txStatus").text(error);
+        }
+      }
+
+      async function levelUp(zombieId) {
+        try {
+          $("#txStatus").text("Leveling up your zombie...");
+          // pass a signer to create a contract instance for state changing operations
+          const tx = await cryptoZombies.levelUp(zombieId, {
+            value: ethers.utils.parseUnits("0.001", "ether"),
+          });
+
+          // wait for the transaction to be mined
+          const receipt = await tx.wait();
+          $("#txStatus").text(
+            "Power overwhelming! Zombie successfully leveled up"
+          );
+        } catch (error) {
+          $("#txStatus").text(error);
+        }
+
+        // return cryptoZombies
+        //   .levelUp(zombieId)
+        //   .send({
+        //     from: userAccount,
+        //     value: Web3.utils.toWei("0.001", "ether"),
+        //   })
+        //   .on("receipt", function (receipt) {
+        //     $("#txStatus").text(
+        //       "Power overwhelming! Zombie successfully leveled up"
+        //     );
+        //   })
+        //   .on("error", function (error) {
+        //     $("#txStatus").text(error);
+        //   });
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.zombies(id);
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.zombieToOwner(id);
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.getZombiesByOwner(owner);
+        // return cryptoZombies.ownerZombieCount(owner);
+      }
+
+      window.addEventListener("load", async function () {
+        if (typeof window.ethereum !== "undefined") {
+          // A Web3Provider wraps a standard Web3 provider, which is
+          // what MetaMask injects as window.ethereum into each page
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+          // MetaMask requires requesting permission to connect users accounts
+          const res = await provider.send("eth_requestAccounts", []);
+
+          const signer = provider.getSigner();
+          userAccount = signer;
+
+          var cryptoZombiesAddress =
+            "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+          var zombieFactoryABI = [
+            {
+              constant: true,
+              inputs: [
+                {
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              name: "zombies",
+              outputs: [
+                {
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  name: "dna",
+                  type: "uint256",
+                },
+                {
+                  name: "level",
+                  type: "uint32",
+                },
+                {
+                  name: "readyTime",
+                  type: "uint32",
+                },
+                {
+                  name: "winCount",
+                  type: "uint16",
+                },
+                {
+                  name: "lossCount",
+                  type: "uint16",
+                },
+              ],
+              payable: false,
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              constant: true,
+              inputs: [
+                {
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              name: "zombieToOwner",
+              outputs: [
+                {
+                  name: "",
+                  type: "address",
+                },
+              ],
+              payable: false,
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              constant: false,
+              inputs: [],
+              name: "renounceOwnership",
+              outputs: [],
+              payable: false,
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              constant: false,
+              inputs: [
+                {
+                  name: "_name",
+                  type: "string",
+                },
+              ],
+              name: "createRandomZombie",
+              outputs: [],
+              payable: false,
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              constant: true,
+              inputs: [],
+              name: "owner",
+              outputs: [
+                {
+                  name: "",
+                  type: "address",
+                },
+              ],
+              payable: false,
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              constant: true,
+              inputs: [],
+              name: "isOwner",
+              outputs: [
+                {
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              payable: false,
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              constant: false,
+              inputs: [
+                {
+                  name: "newOwner",
+                  type: "address",
+                },
+              ],
+              name: "transferOwnership",
+              outputs: [],
+              payable: false,
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: false,
+                  name: "zombieId",
+                  type: "uint256",
+                },
+                {
+                  indexed: false,
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  indexed: false,
+                  name: "dna",
+                  type: "uint256",
+                },
+              ],
+              name: "NewZombie",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  name: "previousOwner",
+                  type: "address",
+                },
+                {
+                  indexed: true,
+                  name: "newOwner",
+                  type: "address",
+                },
+              ],
+              name: "OwnershipTransferred",
+              type: "event",
+            },
+          ];
+
+          // cryptoZombies = new ethers.Contract(
+          //   cryptoZombiesAddress,
+          //   zombieFactoryABI,
+          //   provider.getSigner(0)
+          // );
+          cryptoZombies = new ethers.Contract(
+            cryptoZombiesAddress,
+            zombieFactoryABI,
+            provider.getSigner(0)
+          );
+        } else {
+        }
+
+        startApp();
+      });
+    </script>
+  </body>
+</html>

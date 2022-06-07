@@ -1,20 +1,32 @@
-# cryptozombies-lesson-code
+# Nft Generator
 
 ![CryptoZombies](https://user-images.githubusercontent.com/13703497/69648502-c8f3db80-10ae-11ea-9d52-ce4d4bbc426a.jpeg)
 
 
 ## Overview
-This repository contains source codes for [Cryptozombies](https://cryptozombies.io/en/) lessons.
+This repository contains source codes from [Cryptozombies](https://cryptozombies.io/en/) lessons.
 
-The source codes are divided into `courses` and `chapters` as folders and chapters contain Solidity sample codes for each `lesson`.
 
-> _NOTE: Lesson 7, 8, 9 has been removed and currently no source code is available for those lessons._
+## How to run
+This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+
+Try running some of the following tasks:
+
+```shell
+npx hardhat accounts
+npx hardhat compile
+npx hardhat clean
+npx hardhat test
+npx hardhat node
+node scripts/sample-script.js
+npx hardhat help
+```
 
 ## How To Use
 You can simply clone the project to your local storage with following command:
 
 ```
-git clone https://github.com/loomnetwork/cryptozombies-lesson-code.git
+git clone https://github.com/hammadtariq/nft-generator.git
 ```
 
 Or fork it to modify the sample codes for your own study.
