@@ -19,7 +19,7 @@ const ROPSTEN_PRIVATE_KEY = "99d6ff89f4a0f4862700a373b940c9995ac58453d970a9efffd
 
 // If you are using MetaMask, be sure to change the chainId to 1337
 module.exports = {
-  solidity: "0.4.25",
+  solidity: "0.8.4",
   networks: {
     hardhat: {
       chainId: 31337
