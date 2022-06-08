@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./zombieattack.sol";
-import "./erc721.sol";
 import "./safemath.sol";
 
-contract ZombieOwnership is ZombieAttack, ERC721 {
+abstract contract ZombieOwnership is ZombieAttack, IERC721 {
 
   using SafeMath for uint256;
 
@@ -26,12 +26,12 @@ contract ZombieOwnership is ZombieAttack, ERC721 {
     emit Transfer(_from, _to, _tokenId);
   }
 
-  function transferFrom(address _from, address _to, uint256 _tokenId) external payable override {
+  function transferFrom(address _from, address _to, uint256 _tokenId) external override {
       require (zombieToOwner[_tokenId] == msg.sender || zombieApprovals[_tokenId] == msg.sender);
       _transfer(_from, _to, _tokenId);
     }
 
-  function approve(address _approved, uint256 _tokenId) external payable override onlyOwnerOf(_tokenId) {
+  function approve(address _approved, uint256 _tokenId) external override onlyOwnerOf(_tokenId) {
       zombieApprovals[_tokenId] = _approved;
       emit Approval(msg.sender, _approved, _tokenId);
     }
