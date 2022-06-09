@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "./zombiefactory.sol";
+import "./ZombieFactory.sol";
 
 interface KittyInterface {
   function getKitty(uint256 _id) external view returns (

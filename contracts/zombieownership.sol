@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "./zombieattack.sol";
+import "./ZombieAttack.sol";
 
 abstract contract ZombieOwnership is ZombieAttack, IERC721 {
 
