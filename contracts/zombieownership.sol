@@ -3,11 +3,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./zombieattack.sol";
-import "./safemath.sol";
 
 abstract contract ZombieOwnership is ZombieAttack, IERC721 {
-
-  using SafeMath for uint256;
 
   mapping (uint => address) zombieApprovals;
 
@@ -20,8 +17,8 @@ abstract contract ZombieOwnership is ZombieAttack, IERC721 {
   }
 
   function _transfer(address _from, address _to, uint256 _tokenId) private {
-    ownerZombieCount[_to] = ownerZombieCount[_to].add(1);
-    ownerZombieCount[msg.sender] = ownerZombieCount[msg.sender].sub(1);
+    ownerZombieCount[_to] = ownerZombieCount[_to]++;
+    ownerZombieCount[msg.sender] = ownerZombieCount[msg.sender]--;
     zombieToOwner[_tokenId] = _to;
     emit Transfer(_from, _to, _tokenId);
   }
