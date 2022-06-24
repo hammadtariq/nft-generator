@@ -1,8 +1,25 @@
+const { ethers, run, network } = require("hardhat");
 // We require the Hardhat Runtime Environment explicitly here. This is optional
 // but useful for running the script in a standalone fashion through `node <script>`.
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+
+const verify = async (contractAddress, args) => {
+  console.log("Verifying contract...");
+  try {
+    await run("verify:verify", {
+      address: contractAddress,
+      constructorArguments: args,
+    });
+  } catch (e) {
+    if (e.message.toLowerCase().includes("already verified")) {
+      console.log("Already Verified!");
+    } else {
+      console.log(e);
+    }
+  }
+};
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -31,12 +48,18 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   // We get the contract to deploy
-  const ZombieFactory = await hre.ethers.getContractFactory("ZombieFactory");
+  const ZombieFactory = await ethers.getContractFactory("ZombieFactory");
   const zombieFactory = await ZombieFactory.deploy();
 
   await zombieFactory.deployed();
 
   console.log("ZombieFactory deployed to:", zombieFactory.address);
+
+  if (network.config.chainId !== 31337 && process.env.ETHERSCAN_API) {
+    console.log("waiting for blocks to mine");
+    await zombieFactory.deployTransaction.wait(6);
+    await verify(zombieFactory.address, []);
+  }
   // We also save the contract's artifacts and address in the frontend directory
   saveFrontendFiles(zombieFactory);
 }

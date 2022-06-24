@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 
 // The next line is part of the sample project, you don't need it in your
@@ -16,11 +17,17 @@ const ALCHEMY_API_KEY = process.env.RINKEBY_ALCHEMY_API_KEY;
 // go to Account Details > Export Private Key
 // Be aware of NEVER putting real Ether into testing accounts
 const PRIVATE_KEY = process.env.RINKEBY_PRIVATE_KEY;
+const ETHERSCAN_API = process.env.ETHERSCAN_API;
 
 // If you are using MetaMask, be sure to change the chainId to 1337
 module.exports = {
   solidity: "0.8.4",
   defaultNetwork: "rinkeby",
+  etherscan: {
+    apiKey: {
+      rinkeby: ETHERSCAN_API,
+    },
+  },
   networks: {
     hardhat: {
       chainId: 31337,
