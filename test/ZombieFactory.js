@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("ZombieFactory Contract", function () {
   let Token;
@@ -13,8 +14,6 @@ describe("ZombieFactory Contract", function () {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     hardhatToken = await Token.deploy();
-
-    await hardhatToken.deployed();
   });
 
   describe("Deployment", function () {
@@ -25,7 +24,10 @@ describe("ZombieFactory Contract", function () {
 
   describe("Transactions", function () {
     it("Should create random Zombie", async function () {
-      await hardhatToken.connect(owner).createRandomZombie("Special Zombie");
+      const transactionResponse = await hardhatToken
+        .connect(owner)
+        .createRandomZombie("Special Zombie");
+      await transactionResponse.wait(1);
       const zombie = await hardhatToken.zombies(0);
       expect(zombie.name).to.equal("Special Zombie");
     });

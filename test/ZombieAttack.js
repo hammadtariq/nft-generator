@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("ZombieAttack Contract", function () {
   let Token;
@@ -13,7 +14,15 @@ describe("ZombieAttack Contract", function () {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     hardhatToken = await Token.deploy();
-    await hardhatToken.deployed();
+    // await hardhatToken.deployed(); // not sure if this is needed
+    const transactionResponse1 = await hardhatToken
+      .connect(owner)
+      .createRandomZombie("Special Zombie1");
+    await transactionResponse1.wait(1);
+    const transactionResponse2 = await hardhatToken
+      .connect(addr1)
+      .createRandomZombie("Special Zombie2");
+    await transactionResponse2.wait(1);
   });
 
   describe("Deployment", function () {
@@ -24,8 +33,14 @@ describe("ZombieAttack Contract", function () {
 
   describe("Transactions", function () {
     it("Should level up zombie if win on attack", async function () {
-      await hardhatToken.connect(owner).createRandomZombie("Special Zombie1");
-      await hardhatToken.connect(addr1).createRandomZombie("Special Zombie2");
+      // const transactionResponse1 = await hardhatToken
+      //   .connect(owner)
+      //   .createRandomZombie("Special Zombie1");
+      // await transactionResponse1.wait(1);
+      // const transactionResponse2 = await hardhatToken
+      //   .connect(addr1)
+      //   .createRandomZombie("Special Zombie2");
+      // await transactionResponse2.wait(1);
       myZombie = await hardhatToken.zombies(0);
       // myZombie.readyTime = new Date().getTime() + 100;
       enemyZombie = await hardhatToken.zombies(1);
@@ -38,16 +53,28 @@ describe("ZombieAttack Contract", function () {
     });
 
     it("Should revert if zombie is not ready", async function () {
-      await hardhatToken.connect(owner).createRandomZombie("Special Zombie1");
-      await hardhatToken.connect(addr1).createRandomZombie("Special Zombie2");
+      // const transactionResponse1 = await hardhatToken
+      //   .connect(owner)
+      //   .createRandomZombie("Special Zombie1");
+      // await transactionResponse1.wait(1);
+      // const transactionResponse2 = await hardhatToken
+      //   .connect(addr1)
+      //   .createRandomZombie("Special Zombie2");
+      // await transactionResponse2.wait(1);
       await expect(hardhatToken.connect(owner).attack(0, 1)).to.be.revertedWith(
         "zombie is having some peace time!"
       );
     });
 
-    it("Should revert if not zombie owner", async function () {
-      await hardhatToken.connect(owner).createRandomZombie("Special Zombie1");
-      await hardhatToken.connect(addr1).createRandomZombie("Special Zombie2");
+    it("Should revert if not the owner of zombie", async function () {
+      // const transactionResponse1 = await hardhatToken
+      //   .connect(owner)
+      //   .createRandomZombie("Special Zombie1");
+      // await transactionResponse1.wait(1);
+      // const transactionResponse2 = await hardhatToken
+      //   .connect(addr1)
+      //   .createRandomZombie("Special Zombie2");
+      // await transactionResponse2.wait(1);
       await expect(hardhatToken.connect(addr1).attack(0, 1)).to.be.revertedWith(
         "not the owner of zombie"
       );

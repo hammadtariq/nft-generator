@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("ZombieHelper Contract", function () {
   let Token;
@@ -13,8 +14,6 @@ describe("ZombieHelper Contract", function () {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     hardhatToken = await Token.deploy();
-
-    await hardhatToken.deployed();
   });
 
   describe("Deployment", function () {
@@ -30,7 +29,10 @@ describe("ZombieHelper Contract", function () {
 
   describe("Transactions", function () {
     it("Should set levelUp fee", async function () {
-      await hardhatToken.connect(owner).setLevelUpFee(10);
+      const transactionResponse = await hardhatToken
+        .connect(owner)
+        .setLevelUpFee(10);
+      await transactionResponse.wait(1);
       const levelUpFee = await hardhatToken.getLevelUpFee();
       expect(levelUpFee).to.equal(10);
     });
